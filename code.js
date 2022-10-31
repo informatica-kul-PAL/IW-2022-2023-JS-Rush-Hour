@@ -89,7 +89,7 @@ class Board {
     let row = cell.parentNode.rowIndex;
     let col = cell.cellIndex;
     let dir = cell.classList.item(1);
-    if(!dir in DIRECTIONS) return;
+    if(!(dir in DIRECTIONS)) return;
     let move = DIRECTIONS[dir];
     
     if (this.#is_winning_move(row, col, dir)) {
