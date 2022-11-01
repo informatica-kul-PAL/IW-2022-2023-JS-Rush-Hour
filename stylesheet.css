@@ -2,7 +2,9 @@
     padding: 0;
     margin: 0;
     --board-color: lightgrey;
-    font-size: min(2vw, 2vh);
+    font-size: min(2.5vw, 1.9vh);
+    font-family: Calibri, sans-serif;
+    text-transform: capitalize;
 }
 
 html, body {
@@ -18,13 +20,45 @@ body {
     background-color: lightblue;
 }
 
+/* COMMON */
+#stats, #board_container, #reset_button {
+    border: #525252 solid 1rem;
+    border-radius: 2rem;
+    background-color: var(--board-color);
+}
+
+#stats, #reset_button {
+    padding: 1rem;
+    margin: 1rem;
+}
+
+/* STATS */
+#stats {
+    width: 32.5rem;
+    display: grid;
+    grid-template-columns: 10rem auto 10rem;
+}
+
+#stats #timer {
+    text-align: center;
+}
+
+#stats select {
+    border-radius: 1rem;
+    text-align: center;
+}
+
+/* RESET BUTTON */
+#reset_button {
+    width: 36.5rem;
+}
+
 /* BOARD */
 #board_container {
     border: #525252 solid 1rem;
     border-radius: 2rem;
     position: relative;
     padding: 0.5rem 0.05rem 0.5rem 0.5rem;
-    background-color: var(--board-color);
 }
 
 #board_container tr {
