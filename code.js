@@ -20,7 +20,8 @@ class Board {
   last_move_id = 0;
   last_move_dir = '';
   
-  constructor() {
+  constructor(field) {
+    this.#field = JSON.parse(JSON.stringify(field));
     this.draw();
   }
   
@@ -115,5 +116,40 @@ class Board {
 }
 
 window.onload = async () => {
-  board = new Board();
+  board = new Board(LEVELS.intermediate);
 }
+
+const LEVELS = {
+  "intermediate": [
+    [ 3,  3,  7,  9,  0,  0],
+    [ 2,  2,  7,  9,  0,  0],
+    [ 8,  1,  1,  9,  0,  0],
+    [ 8,  4,  4,  4,  0,  0],
+    [ 8,  5,  5,  0,  0,  0],
+    [ 6,  6,  6,  0,  0,  0],
+  ],
+  "advanced": [
+    [ 0,  4,  0,  7,  7,  7],
+    [ 2,  4,  0,  8, 10,  0],
+    [ 2,  1,  1,  8, 10, 11],
+    [ 3,  5,  5,  5, 10, 11],
+    [ 3,  0,  6,  0,  0, 12],
+    [ 0,  0,  6,  9,  9, 12],
+  ],
+  "expert": [
+    [ 2,  0,  0,  6,  6,  6],
+    [ 2,  3,  3,  7,  0,  0],
+    [ 1,  1,  4,  7,  0, 11],
+    [ 0,  0,  4,  8,  8, 11],
+    [ 0,  0,  5,  9,  9, 11],
+    [ 0,  0,  5, 10, 10, 10],
+  ],
+  "grand master": [
+    [ 2,  2,  6,  0,  9,  9],
+    [ 3,  3,  6,  0, 10,  0],
+    [ 4,  0,  1,  1, 10,  0],
+    [ 4,  7,  7,  7, 10, 11],
+    [ 4,  0,  0,  8,  0, 11],
+    [ 5,  5,  0,  8, 12, 12],
+  ],
+};
