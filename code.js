@@ -17,6 +17,9 @@ class Board {
     [0, 0, 0, 0, 0, 0],
   ];
   
+  last_move_id = 0;
+  last_move_dir = '';
+  
   constructor() {
     this.draw();
   }
@@ -34,7 +37,7 @@ class Board {
   }
   
   #cell_to_html(row, col) {
-    return `<td class="${this.#get_cell_classes(row, col)}" data-id="${this.#field[row][col]}" onclick="board.on_click(this)"></td>`;
+    return `<td class="${this.#get_animated_cell_classes(row, col)}" data-id="${this.#field[row][col]}" onclick="board.on_click(this)"></td>`;
   }
   
   #get_cell_classes(row, col) {
@@ -54,6 +57,10 @@ class Board {
       return 'ver top';
     
     return '';
+  }
+  
+  #get_animated_cell_classes(row, col) {
+    return `${this.#get_cell_classes(row, col)}${this.#field[row][col] === this.last_move_id ? ` move_${this.last_move_dir}` : ''}`;
   }
   
   #cells_equal(row1, col1, row2, col2) {
@@ -98,8 +105,11 @@ class Board {
     }
     
     if (!this.#is_valid_move(row, col, move)) return;
-    
+  
+    this.last_move_id = this.#field[row][col];
     this.#move(row, col, move);
+    this.last_move_dir = dir;
+    
     this.draw();
   }
 }

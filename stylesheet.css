@@ -242,3 +242,72 @@ body {
     --vehicle-color: rosybrown;
     --vehicle-border-color: saddlebrown;
 }
+
+/* MOVEMENT ANIMATIONS */
+#board_container td.move_right:after {
+    animation: move_right 0.5s normal ease-in-out;
+}
+
+#board_container td.move_right:before {
+    animation: move_right 0.5s normal ease-in-out;
+}
+
+@keyframes move_right {
+    from {
+        transform: translateX(-5.5rem);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+#board_container td.move_left:after {
+    animation: move_left 0.5s normal ease-in-out;
+}
+
+#board_container td.move_left:before {
+    animation: move_left 0.5s normal ease-in-out;
+}
+
+@keyframes move_left {
+    from {
+        transform: translateX(5.5rem);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+#board_container td.move_top:after {
+    animation: move_top 0.5s normal ease-in-out;
+}
+
+#board_container td.move_top:before {
+    animation: move_top 0.5s normal ease-in-out;
+}
+
+@keyframes move_top {
+    from {
+        transform: translateY(5.5rem);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+#board_container td.move_bottom:after {
+    animation: move_bottom 0.5s normal ease-in-out;
+}
+
+#board_container td.move_bottom:before {
+    animation: move_bottom 0.5s normal ease-in-out;
+}
+
+@keyframes move_bottom {
+    from {
+        transform: translateY(-5.5rem);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
