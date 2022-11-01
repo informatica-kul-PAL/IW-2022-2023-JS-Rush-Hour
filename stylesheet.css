@@ -357,7 +357,7 @@ body {
 #win_overlay {
     position: fixed;
     z-index: 2;
-    width: 20rem;
+    width: 27.5rem;
     height: 10rem;
     top: 0;
     bottom: 0;
@@ -368,6 +368,7 @@ body {
     border: red solid 1rem;
     border-radius: 3rem;
     transform: translateX(100vw);
+    transition: transform 2s ease-in-out;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -381,14 +382,4 @@ body {
 
 .win #win_overlay {
     transform: translateX(0);
-    animation: win_move_in 2s normal ease-in-out;
-}
-
-@keyframes win_move_in {
-    from {
-        transform: translateX(100vw);
-    }
-    to {
-        transform: translateX(0);
-    }
 }
