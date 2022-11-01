@@ -9,7 +9,7 @@ const DIRECTIONS = {
 };
 
 const LEVELS = {
-  "intermediate": [
+  'intermediate': [
     [ 3,  3,  7,  9,  0,  0],
     [ 2,  2,  7,  9,  0,  0],
     [ 8,  1,  1,  9,  0,  0],
@@ -17,7 +17,7 @@ const LEVELS = {
     [ 8,  5,  5,  0,  0,  0],
     [ 6,  6,  6,  0,  0,  0],
   ],
-  "advanced": [
+  'advanced': [
     [ 0,  4,  0,  7,  7,  7],
     [ 2,  4,  0,  8, 10,  0],
     [ 2,  1,  1,  8, 10, 11],
@@ -25,7 +25,7 @@ const LEVELS = {
     [ 3,  0,  6,  0,  0, 12],
     [ 0,  0,  6,  9,  9, 12],
   ],
-  "expert": [
+  'expert': [
     [ 2,  0,  0,  6,  6,  6],
     [ 2,  3,  3,  7,  0,  0],
     [ 1,  1,  4,  7,  0, 11],
@@ -33,7 +33,7 @@ const LEVELS = {
     [ 0,  0,  5,  9,  9, 11],
     [ 0,  0,  5, 10, 10, 10],
   ],
-  "grand_master": [
+  'grand_master': [
     [ 2,  2,  6,  0,  9,  9],
     [ 3,  3,  6,  0, 10,  0],
     [ 4,  0,  1,  1, 10,  0],
@@ -55,12 +55,13 @@ class Board {
     this.level_name = level_name;
     this.field = JSON.parse(JSON.stringify(LEVELS[level_name]));
     timer.reset();
+    document.body.classList.remove('win');
     this.draw();
   }
   
   draw() {
-    document.getElementById("move_count").innerHTML = `${this.move_count} moves`;
-    document.getElementById("board_container").innerHTML = this.html;
+    document.getElementById('move_count').innerHTML = `${this.move_count} Moves`;
+    document.getElementById('board_container').innerHTML = this.html;
   }
   
   get html() {
@@ -127,7 +128,17 @@ class Board {
       this.move(row - move[0], col - move[1], move);
   }
   
+  on_win() {
+    timer.stop();
+    document.body.classList.add('win');
+    document.getElementById('win_move_count').innerHTML = `${this.move_count} Moves`;
+    document.getElementById('win_timer').innerHTML = timer.formatted;
+  }
+  
   on_click(cell) {
+    if (document.body.classList.contains('win'))
+      return;
+    
     let row = cell.parentNode.rowIndex;
     let col = cell.cellIndex;
     let dir = cell.classList.item(1);
@@ -135,8 +146,7 @@ class Board {
     let move = DIRECTIONS[dir];
     
     if (this.is_winning_move(row, col, dir)) {
-      timer.stop();
-      alert("WIN");
+      this.on_win();
       return;
     }
     

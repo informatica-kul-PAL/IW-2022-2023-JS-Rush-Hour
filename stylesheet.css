@@ -10,6 +10,7 @@
 html, body {
     width: 100%;
     height: 100%;
+    overflow: hidden;
 }
 
 body {
@@ -281,10 +282,7 @@ body {
 }
 
 /* MOVEMENT ANIMATIONS */
-#board_container td.move_right:after {
-    animation: move_right 0.5s normal ease-in-out;
-}
-
+#board_container td.move_right:after,
 #board_container td.move_right:before {
     animation: move_right 0.5s normal ease-in-out;
 }
@@ -298,10 +296,7 @@ body {
     }
 }
 
-#board_container td.move_left:after {
-    animation: move_left 0.5s normal ease-in-out;
-}
-
+#board_container td.move_left:after,
 #board_container td.move_left:before {
     animation: move_left 0.5s normal ease-in-out;
 }
@@ -315,10 +310,7 @@ body {
     }
 }
 
-#board_container td.move_top:after {
-    animation: move_top 0.5s normal ease-in-out;
-}
-
+#board_container td.move_top:after,
 #board_container td.move_top:before {
     animation: move_top 0.5s normal ease-in-out;
 }
@@ -332,10 +324,7 @@ body {
     }
 }
 
-#board_container td.move_bottom:after {
-    animation: move_bottom 0.5s normal ease-in-out;
-}
-
+#board_container td.move_bottom:after,
 #board_container td.move_bottom:before {
     animation: move_bottom 0.5s normal ease-in-out;
 }
@@ -346,5 +335,60 @@ body {
     }
     to {
         transform: translateY(0);
+    }
+}
+
+/* WIN ANIMATION */
+.win #board_container td[data-id="1"]:before,
+.win #board_container td[data-id="1"]:after {
+    animation: win_move_out 1s normal ease-in-out;
+    transform: translateX(50vw);
+}
+
+@keyframes win_move_out {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(50vw);
+    }
+}
+
+#win_overlay {
+    position: fixed;
+    z-index: 2;
+    width: 20rem;
+    height: 10rem;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    background-color: palevioletred;
+    border: red solid 1rem;
+    border-radius: 3rem;
+    transform: translateX(100vw);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#win_overlay label {
+    color: white;
+    font-size: 2rem;
+}
+
+.win #win_overlay {
+    transform: translateX(0);
+    animation: win_move_in 2s normal ease-in-out;
+}
+
+@keyframes win_move_in {
+    from {
+        transform: translateX(100vw);
+    }
+    to {
+        transform: translateX(0);
     }
 }
