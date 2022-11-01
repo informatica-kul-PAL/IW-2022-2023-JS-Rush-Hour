@@ -63,6 +63,7 @@ body {
     border-style: solid;
     border-width: 0.4rem;
     overflow: hidden;
+    z-index: 2;
 }
 
 #board_container td.hor:before {
@@ -123,6 +124,7 @@ body {
     content: '';
     border: 1rem solid transparent;
     opacity: 50%;
+    z-index: 2;
 }
 
 #board_container td.right:after {
