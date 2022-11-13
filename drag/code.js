@@ -51,6 +51,10 @@ class Board {
   last_move_dir = '';
   move_count = 0;
   
+  moving = 0;
+  x_base = 0;
+  y_base = 0;
+  
   constructor(level_name) {
     this.level_name = level_name;
     this.field = JSON.parse(JSON.stringify(LEVELS[level_name]));
@@ -73,7 +77,7 @@ class Board {
   }
   
   cell_to_html(row, col) {
-    return `<td class="${this.get_animated_cell_classes(row, col)}" data-id="${this.field[row][col]}" onclick="board.on_click(this)"></td>`;
+    return `<td class="${this.get_animated_cell_classes(row, col)}" data-id="${this.field[row][col]}" ondrag="board.on_drag(this, event)" ondragstart="board.on_drag_start(this, event)" ondragend="board.on_drag_end(this)"></td>`;
   }
   
   get_cell_classes(row, col) {
@@ -161,6 +165,52 @@ class Board {
     this.last_move_dir = dir;
     
     this.draw();
+  }
+  
+  on_drag_start(cell, event) {
+    if (document.body.classList.contains('win'))
+      return;
+    
+    let id = cell.dataset.id;
+    if (!id) return;
+    
+    this.moving = id;
+  
+    console.log("Started moving");
+    
+    this.x_base = event.clientX;
+    this.y_base = event.clientY;
+  }
+  
+  on_drag_end(cell) {
+    let cell_size = cell.offsetWidth;
+    
+    this.moving = 0;
+    this.x_base = 0;
+    this.y_base = 0;
+    
+    this.draw();
+  }
+  
+  on_drag(cell, event) {
+    if (document.body.classList.contains('win') || this.moving === 0)
+      return;
+    
+    let cell_size = cell.offsetWidth;
+    console.log(cell_size);
+    
+    [...document.getElementsByTagName('td')]
+      .filter(td =>td.dataset.id === this.moving)
+      .forEach(cell => {
+        switch (cell.classList.item(0)) {
+          case 'ver':
+            cell.setAttribute("style", `--move-y: ${event.clientY - this.y_base}px;`);
+            break;
+          case 'hor':
+            cell.setAttribute("style", `--move-x: ${event.clientX - this.x_base}px;`);
+            break;
+        }
+      });
   }
 }
 

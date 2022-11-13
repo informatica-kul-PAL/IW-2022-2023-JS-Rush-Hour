@@ -5,6 +5,8 @@
     font-size: min(2.5vw, 1.9vh);
     font-family: Calibri, sans-serif;
     text-transform: capitalize;
+    --move-x: 0;
+    --move-y: 0;
 }
 
 html, body {
@@ -382,4 +384,11 @@ body {
 
 .win #win_overlay {
     transform: translateX(0);
+}
+
+/* Drag animation */
+#board_container td:after,
+#board_container td:before {
+    z-index: 2;
+    transform: translateX(var(--move-x)) translateY(var(--move-y));
 }
