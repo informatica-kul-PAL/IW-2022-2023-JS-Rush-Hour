@@ -66,6 +66,14 @@ class Board {
   draw() {
     document.getElementById('move_count').innerHTML = `${this.move_count} Moves`;
     document.getElementById('board_container').innerHTML = this.html;
+    [...document.getElementsByTagName('td')].forEach(cell => {
+      cell.addEventListener('touchstart', (event) => this.on_drag_start_touch(cell, event));
+      cell.addEventListener('mousedown', (event) => this.on_drag_start(cell, event));
+      cell.addEventListener('touchmove', (event) => this.on_drag_touch(cell, event));
+      cell.addEventListener('mousemove', (event) => this.on_drag(cell, event));
+      cell.addEventListener('touchend', (event) => this.on_drag_end(cell));
+      cell.addEventListener('mouseup', (event) => this.on_drag_end(cell));
+    })
   }
   
   get html() {
@@ -77,7 +85,7 @@ class Board {
   }
   
   cell_to_html(row, col) {
-    return `<td class="${this.get_animated_cell_classes(row, col)}" data-id="${this.field[row][col]}" ondrag="board.on_drag(this, event)" ondragstart="board.on_drag_start(this, event)" ondragend="board.on_drag_end(this)"></td>`;
+    return `<td class="${this.get_animated_cell_classes(row, col)}" data-id="${this.field[row][col]}"></td>`;
   }
   
   get_cell_classes(row, col) {
@@ -211,6 +219,14 @@ class Board {
             break;
         }
       });
+  }
+  
+  on_drag_start_touch(cell, event) {
+    this.on_drag_start(cell, event.touches[0]);
+  }
+  
+  on_drag_touch(cell, event) {
+    this.on_drag(cell, event.touches[0]);
   }
 }
 
