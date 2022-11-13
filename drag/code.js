@@ -183,16 +183,54 @@ class Board {
     if (!id) return;
     
     this.moving = id;
-  
-    console.log("Started moving");
     
     this.x_base = event.clientX;
     this.y_base = event.clientY;
   }
   
+  calc_offset_bounds(cell, orient) {
+    switch(orient) {
+      case 'hor':
+        let left_most = [...document.getElementsByClassName('hor left')].find(td => td.dataset.id === cell.dataset.id);
+        let right_most = [...document.getElementsByClassName('hor right')].find(td => td.dataset.id === cell.dataset.id);
+        return {
+          min: this.count_empty(left_most, DIRECTIONS.left),
+          max: this.count_empty(right_most, DIRECTIONS.right),
+        };
+      case 'ver':
+        let top_most = [...document.getElementsByClassName('ver top')].find(td => td.dataset.id === cell.dataset.id);
+        let bottom_most = [...document.getElementsByClassName('ver bottom')].find(td => td.dataset.id === cell.dataset.id);
+        return {
+          min: this.count_empty(top_most, DIRECTIONS.top),
+          max: this.count_empty(bottom_most, DIRECTIONS.bottom),
+        };
+    }
+    return {
+      min: 0,
+      max: 0,
+    };
+  }
+  
+  scaled_offset_bounds(cell, orient) {
+    let bounds = this.calc_offset_bounds(cell, orient);
+    return {
+      min: bounds.min * cell.offsetWidth * 1.1,
+      max: bounds.max * cell.offsetWidth * 1.1
+    }
+  }
+  
+  count_empty(from_cell, dir) {
+    let row = from_cell.parentNode.rowIndex;
+    let col = from_cell.cellIndex;
+    let i;
+    for (i = 1;
+         this.is_in_field(row + dir[0] * i, col + dir[1] * i)
+            && this.field[row + dir[0] * i][col + dir[1] * i] === 0;
+         i++);
+    return --i;
+  }
+  
   on_drag_end(cell) {
-    let cell_size = cell.offsetWidth;
-    
     this.moving = 0;
     this.x_base = 0;
     this.y_base = 0;
@@ -204,21 +242,28 @@ class Board {
     if (document.body.classList.contains('win') || this.moving === 0)
       return;
     
-    let cell_size = cell.offsetWidth;
-    console.log(cell_size);
+    let bounds = this.scaled_offset_bounds(cell, cell.classList.item(0));
     
     [...document.getElementsByTagName('td')]
       .filter(td =>td.dataset.id === this.moving)
       .forEach(cell => {
         switch (cell.classList.item(0)) {
           case 'ver':
-            cell.setAttribute("style", `--move-y: ${event.clientY - this.y_base}px;`);
+            cell.setAttribute("style", `--move-y: ${this.calc_bounded_move(event.clientY - this.y_base, bounds)}px;`);
             break;
           case 'hor':
-            cell.setAttribute("style", `--move-x: ${event.clientX - this.x_base}px;`);
+            cell.setAttribute("style", `--move-x: ${this.calc_bounded_move(event.clientX - this.x_base, bounds)}px;`);
             break;
         }
       });
+  }
+  
+  calc_bounded_move(dif, bounds) {
+    if (dif < bounds.min)
+      return bounds.min;
+    if (dif > bounds.max)
+      return bounds.max;
+    return dif;
   }
   
   on_drag_start_touch(cell, event) {
