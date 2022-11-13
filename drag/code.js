@@ -254,7 +254,7 @@ class Board {
         dist = move_x;
         break;
       case 'ver':
-        leading_classes = move_x > 0 ? 'ver bottom' : 'ver top';
+        leading_classes = move_y > 0 ? 'ver bottom' : 'ver top';
         move = move_y > 0 ? DIRECTIONS.bottom : DIRECTIONS.top;
         dist = move_y;
         break;
@@ -286,7 +286,6 @@ class Board {
     this.y_base = 0;
     this.x_move = 0;
     this.y_move = 0;
-    console.log('a');
     this.draw();
   }
   
