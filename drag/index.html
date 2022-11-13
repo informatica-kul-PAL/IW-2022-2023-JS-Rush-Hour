@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Rush Hour (Draggable)</title>
+        <link rel="stylesheet" href="stylesheet.css">
+        <script src="code.js"></script>
+    </head>
+    <body>
+        <div id="stats">
+            <label id="move_count">0 moves</label>
+            <label id="timer">00:00</label>
+            <select id="level_select" onchange="select_level(this.value)">
+                <option value="intermediate">Intermediate</option>
+                <option value="advanced">Advanced</option>
+                <option value="expert">Expert</option>
+                <option value="grand_master">Grand Master</option>
+            </select>
+        </div>
+        <div id="board_container">
+            <table>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </table>
+        </div>
+        <button id="reset_button" onclick="reset_game()">
+            RESET
+        </button>
+        <div id="win_overlay">
+            <label>WIN</label>
+            <label id="win_timer">00:00</label>
+            <label id="win_move_count">0 Moves</label>
+        </div>
+    </body>
+</html>
