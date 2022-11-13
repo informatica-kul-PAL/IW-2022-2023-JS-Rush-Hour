@@ -54,6 +54,8 @@ class Board {
   moving = 0;
   x_base = 0;
   y_base = 0;
+  x_move = 0;
+  y_move = 0;
   
   constructor(level_name) {
     this.level_name = level_name;
@@ -67,9 +69,9 @@ class Board {
     document.getElementById('move_count').innerHTML = `${this.move_count} Moves`;
     document.getElementById('board_container').innerHTML = this.html;
     [...document.getElementsByTagName('td')].forEach(cell => {
-      cell.addEventListener('touchstart', (event) => this.on_drag_start_touch(cell, event));
+      cell.addEventListener('touchstart', (event) => this.on_drag_start(cell, event.touches[0]));
       cell.addEventListener('mousedown', (event) => this.on_drag_start(cell, event));
-      cell.addEventListener('touchmove', (event) => this.on_drag_touch(cell, event));
+      cell.addEventListener('touchmove', (event) => this.on_drag(cell, event.touches[0]));
       cell.addEventListener('mousemove', (event) => this.on_drag(cell, event));
       cell.addEventListener('touchend', (event) => this.on_drag_end(cell));
       cell.addEventListener('mouseup', (event) => this.on_drag_end(cell));
@@ -231,10 +233,50 @@ class Board {
   }
   
   on_drag_end(cell) {
+    if (document.body.classList.contains('win') || this.moving === 0 || cell.dataset.id === '0')
+      return;
+    
+    let bounds = this.scaled_offset_bounds(cell, cell.classList.item(0));
+    let move_x = this.calc_bounded_move(this.x_move - this.x_base, bounds);
+    let move_y = this.calc_bounded_move(this.y_move - this.y_base, bounds);
+    
+    let leading_classes
+    let move;
+    let dist;
+    
+    switch (cell.classList[0]) {
+      case 'hor':
+        leading_classes = move_x > 0 ? 'hor right' : 'hor left';
+        move = move_x > 0 ? DIRECTIONS.right : DIRECTIONS.left;
+        dist = Math.round(move_x / (cell.offsetWidth * 1.1));
+        break;
+      case 'ver':
+        leading_classes = move_x > 0 ? 'ver bottom' : 'hor top';
+        move = move_y > 0 ? DIRECTIONS.bottom : DIRECTIONS.top;
+        dist = Math.round(move_y / (cell.offsetWidth * 1.1));
+        break;
+    }
+    
+    let leading_cell = [...document.getElementsByClassName(leading_classes)].find(td => td.dataset.id === cell.dataset.id);
+    if (!leading_cell) {
+      console.log("huh");
+      this.moving = 0;
+      this.x_base = 0;
+      this.y_base = 0;
+      this.draw();
+      return;
+    }
+    let row = leading_cell.parentNode.rowIndex;
+    let col = leading_cell.cellIndex;
+    
+    for (let i = 0; i < dist; i++) {
+      this.move(row + i * move[0], col + i * move[1], move);
+    }
+  
     this.moving = 0;
     this.x_base = 0;
     this.y_base = 0;
-    
+    console.log('a');
     this.draw();
   }
   
@@ -243,6 +285,8 @@ class Board {
       return;
     
     let bounds = this.scaled_offset_bounds(cell, cell.classList.item(0));
+    this.x_move = event.clientX;
+    this.y_move = event.clientY;
     
     [...document.getElementsByTagName('td')]
       .filter(td =>td.dataset.id === this.moving)
@@ -264,14 +308,6 @@ class Board {
     if (dif > bounds.max)
       return bounds.max;
     return dif;
-  }
-  
-  on_drag_start_touch(cell, event) {
-    this.on_drag_start(cell, event.touches[0]);
-  }
-  
-  on_drag_touch(cell, event) {
-    this.on_drag(cell, event.touches[0]);
   }
 }
 
