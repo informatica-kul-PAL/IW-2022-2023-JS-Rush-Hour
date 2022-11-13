@@ -47,8 +47,7 @@ class Board {
   level_name;
   field;
   
-  last_move_id = 0;
-  last_move_dir = '';
+  last_move_id = '0';
   move_count = 0;
   
   moving = '0';
@@ -193,6 +192,15 @@ class Board {
   }
   
   calc_offset_bounds(id, orient) {
+    let bounds = this.calc_actual_bounds(id, orient)
+    if (id === '1' && orient === 'hor') {
+      let right_most = [...document.getElementsByClassName('hor right')].find(td => td.dataset.id === id);
+      bounds.max += this.no_right_bound(right_most) ? 1 : 0;
+    }
+    return bounds;
+  }
+  
+  calc_actual_bounds(id, orient) {
     switch(orient) {
       case 'hor':
         let left_most = [...document.getElementsByClassName('hor left')].find(td => td.dataset.id === id);
@@ -215,8 +223,27 @@ class Board {
     };
   }
   
+  no_right_bound(cell) {
+    let row = cell.parentNode.rowIndex;
+    let col = cell.cellIndex;
+    let dir = DIRECTIONS.right;
+    for (let i = 1; this.is_in_field(row + dir[0] * i, col + dir[1] * i); i++)
+      if (this.field[row + dir[0] * i][col + dir[1] * i] !== 0)
+        return false;
+    return true;
+  }
+  
   scaled_offset_bounds(id, orient) {
     let bounds = this.calc_offset_bounds(id, orient);
+    let cell = document.getElementsByTagName('td')[0];
+    return {
+      min: bounds.min * cell.offsetWidth * 1.1,
+      max: bounds.max * cell.offsetWidth * 1.1
+    }
+  }
+  
+  scaled_actual_bounds(id, orient) {
+    let bounds = this.calc_actual_bounds(id, orient);
     let cell = document.getElementsByTagName('td')[0];
     return {
       min: bounds.min * cell.offsetWidth * 1.1,
@@ -275,9 +302,22 @@ class Board {
     dist = Math.abs(Math.round(dist / (leading_cell.offsetWidth * 1.1)));
     let row = leading_cell.parentNode.rowIndex;
     let col = leading_cell.cellIndex;
+  
+    let limited_bounds = this.scaled_actual_bounds(this.moving, this.moving_orient);
+    let limited_move_x = this.calc_bounded_move(this.x_move - this.x_base, limited_bounds);
+    console.log(limited_move_x, move_x);
+    if (limited_move_x < move_x) {
+      dist--;
+    }
     
     for (let i = 0; i < dist; i++) {
       this.move(row + i * move[0], col + i * move[1], move);
+    }
+    
+    
+    if (dist !== 0 && this.last_move_id !== this.moving) {
+      this.move_count++;
+      this.last_move_id = this.moving;
     }
   
     this.moving = '0';
@@ -287,6 +327,10 @@ class Board {
     this.x_move = 0;
     this.y_move = 0;
     this.draw();
+    timer.start();
+    if (limited_move_x < move_x) {
+      this.on_win();
+    }
   }
   
   on_drag(event) {
