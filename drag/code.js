@@ -125,16 +125,6 @@ class Board {
         && col >= 0 && col < this.field[row].length;
   }
   
-  is_winning_move(row, col, dir) {
-    return dir === 'right'
-      && this.field[row][col] === 1
-      && this.field[row].length === col+1;
-  }
-  
-  is_valid_move(row, col, move) {
-    return this.is_in_field(row + move[0], col + move[1]) && this.field[row + move[0]][col + move[1]] === 0;
-  }
-  
   move(row, col, move) {
     this.field[row + move[0]][col + move[1]] = this.field[row][col];
     this.field[row][col] = 0;
@@ -147,34 +137,6 @@ class Board {
     document.body.classList.add('win');
     document.getElementById('win_move_count').innerHTML = `${this.move_count} Moves`;
     document.getElementById('win_timer').innerHTML = timer.formatted;
-  }
-  
-  on_click(cell) {
-    if (document.body.classList.contains('win'))
-      return;
-    
-    let row = cell.parentNode.rowIndex;
-    let col = cell.cellIndex;
-    let dir = cell.classList.item(1);
-    if(!(dir in DIRECTIONS)) return;
-    let move = DIRECTIONS[dir];
-    
-    if (this.is_winning_move(row, col, dir)) {
-      this.on_win();
-      return;
-    }
-    
-    if (!this.is_valid_move(row, col, move)) return;
-    
-    if (this.last_move_id !== this.field[row][col])
-      this.move_count++;
-    
-    this.last_move_id = this.field[row][col];
-    this.move(row, col, move);
-    timer.start();
-    this.last_move_dir = dir;
-    
-    this.draw();
   }
   
   on_drag_start(cell, event) {
@@ -305,7 +267,6 @@ class Board {
   
     let limited_bounds = this.scaled_actual_bounds(this.moving, this.moving_orient);
     let limited_move_x = this.calc_bounded_move(this.x_move - this.x_base, limited_bounds);
-    console.log(limited_move_x, move_x);
     if (limited_move_x < move_x) {
       dist--;
     }
