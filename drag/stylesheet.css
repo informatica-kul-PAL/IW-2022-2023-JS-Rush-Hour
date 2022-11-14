@@ -292,7 +292,7 @@ body {
 
 @keyframes win_move_out {
     from {
-        transform: translateX(0);
+        transform: translateX(5.5rem);
     }
     to {
         transform: translateX(50vw);

@@ -56,6 +56,8 @@ class Board {
   y_base = 0;
   x_move = 0;
   y_move = 0;
+  bounds;
+  cellsize;
   
   constructor(level_name) {
     this.level_name = level_name;
@@ -75,7 +77,8 @@ class Board {
       document.body.addEventListener('mousemove', (event) => this.on_drag(event));
       document.body.addEventListener('touchend', (event) => this.on_drag_end());
       document.body.addEventListener('mouseup', (event) => this.on_drag_end());
-    })
+    });
+    this.cellsize = document.getElementsByTagName('td')[0].offsetWidth;
   }
   
   get html() {
@@ -139,50 +142,48 @@ class Board {
     document.getElementById('win_timer').innerHTML = timer.formatted;
   }
   
-  on_drag_start(cell, event) {
-    if (document.body.classList.contains('win'))
-      return;
-    
-    let id = cell.dataset.id;
-    if (!id) return;
-    
-    this.moving = id;
-    this.moving_orient = cell.classList[0];
-    
-    this.x_base = event.clientX;
-    this.y_base = event.clientY;
-  }
-  
-  calc_offset_bounds(id, orient) {
-    let bounds = this.calc_actual_bounds(id, orient)
-    if (id === '1' && orient === 'hor') {
-      let right_most = [...document.getElementsByClassName('hor right')].find(td => td.dataset.id === id);
-      bounds.max += this.no_right_bound(right_most) ? 1 : 0;
+  calc_bounds(id, orient) {
+    let bounds = {
+      actual: {
+        min: 0,
+        max: 0,
+      },
+      limit: {
+        min: 0,
+        max: 0,
+      }
     }
-    return bounds;
-  }
-  
-  calc_actual_bounds(id, orient) {
     switch(orient) {
       case 'hor':
         let left_most = [...document.getElementsByClassName('hor left')].find(td => td.dataset.id === id);
         let right_most = [...document.getElementsByClassName('hor right')].find(td => td.dataset.id === id);
-        return {
+        bounds.limit = {
           min: -1 * this.count_empty(left_most, DIRECTIONS.left),
           max: this.count_empty(right_most, DIRECTIONS.right),
         };
+        bounds.actual.max = bounds.limit.max + ((id === '1' && this.no_right_bound(right_most)) ? 1 : 0);
+        break;
       case 'ver':
         let top_most = [...document.getElementsByClassName('ver top')].find(td => td.dataset.id === id);
         let bottom_most = [...document.getElementsByClassName('ver bottom')].find(td => td.dataset.id === id);
-        return {
+        bounds.limit = {
           min: -1 * this.count_empty(top_most, DIRECTIONS.top),
           max: this.count_empty(bottom_most, DIRECTIONS.bottom),
         };
+        bounds.actual.max = bounds.limit.max;
     }
-    return {
-      min: 0,
-      max: 0,
-    };
+    bounds.actual.min = bounds.limit.min;
+    return bounds;
+  }
+  
+  scaled_bounds(id, orient) {
+    let bounds = this.calc_bounds(id, orient);
+    let scale = this.cellsize * 1.1;
+    bounds.actual.min *= scale;
+    bounds.actual.max *= scale;
+    bounds.limit.min *= scale;
+    bounds.limit.max *= scale;
+    return bounds;
   }
   
   no_right_bound(cell) {
@@ -193,24 +194,6 @@ class Board {
       if (this.field[row + dir[0] * i][col + dir[1] * i] !== 0)
         return false;
     return true;
-  }
-  
-  scaled_offset_bounds(id, orient) {
-    let bounds = this.calc_offset_bounds(id, orient);
-    let cell = document.getElementsByTagName('td')[0];
-    return {
-      min: bounds.min * cell.offsetWidth * 1.1,
-      max: bounds.max * cell.offsetWidth * 1.1
-    }
-  }
-  
-  scaled_actual_bounds(id, orient) {
-    let bounds = this.calc_actual_bounds(id, orient);
-    let cell = document.getElementsByTagName('td')[0];
-    return {
-      min: bounds.min * cell.offsetWidth * 1.1,
-      max: bounds.max * cell.offsetWidth * 1.1
-    }
   }
   
   count_empty(from_cell, dir) {
@@ -224,13 +207,28 @@ class Board {
     return --i;
   }
   
+  on_drag_start(cell, event) {
+    if (document.body.classList.contains('win'))
+      return;
+    
+    let id = cell.dataset.id;
+    if (!id) return;
+    
+    this.moving = id;
+    this.moving_orient = cell.classList[0];
+    
+    this.x_base = event.clientX;
+    this.y_base = event.clientY;
+    
+    this.bounds = this.scaled_bounds(this.moving, this.moving_orient);
+  }
+  
   on_drag_end() {
     if (document.body.classList.contains('win') || this.moving === '0')
       return;
     
-    let bounds = this.scaled_offset_bounds(this.moving, this.moving_orient);
-    let move_x = this.calc_bounded_move(this.x_move - this.x_base, bounds);
-    let move_y = this.calc_bounded_move(this.y_move - this.y_base, bounds);
+    let move_x = this.calc_bounded_move(this.x_move - this.x_base, this.bounds.actual);
+    let move_y = this.calc_bounded_move(this.y_move - this.y_base, this.bounds.actual);
     
     let leading_classes
     let move;
@@ -253,20 +251,14 @@ class Board {
     if (!leading_cell) {
       console.log("huh");
       this.moving = '0';
-      this.moving_orient = '';
-      this.x_base = 0;
-      this.y_base = 0;
-      this.x_move = 0;
-      this.y_move = 0;
       this.draw();
       return;
     }
     dist = Math.abs(Math.round(dist / (leading_cell.offsetWidth * 1.1)));
     let row = leading_cell.parentNode.rowIndex;
     let col = leading_cell.cellIndex;
-  
-    let limited_bounds = this.scaled_actual_bounds(this.moving, this.moving_orient);
-    let limited_move_x = this.calc_bounded_move(this.x_move - this.x_base, limited_bounds);
+    
+    let limited_move_x = this.calc_bounded_move(this.x_move - this.x_base, this.bounds.limit);
     if (limited_move_x < move_x) {
       dist--;
     }
@@ -275,18 +267,12 @@ class Board {
       this.move(row + i * move[0], col + i * move[1], move);
     }
     
-    
     if (dist !== 0 && this.last_move_id !== this.moving) {
       this.move_count++;
       this.last_move_id = this.moving;
     }
   
     this.moving = '0';
-    this.moving_orient = '';
-    this.x_base = 0;
-    this.y_base = 0;
-    this.x_move = 0;
-    this.y_move = 0;
     this.draw();
     timer.start();
     if (limited_move_x < move_x) {
@@ -298,7 +284,6 @@ class Board {
     if (document.body.classList.contains('win') || this.moving === '0')
       return;
     
-    let bounds = this.scaled_offset_bounds(this.moving, this.moving_orient);
     this.x_move = event.clientX;
     this.y_move = event.clientY;
     
@@ -307,10 +292,10 @@ class Board {
       .forEach(cell => {
         switch (cell.classList.item(0)) {
           case 'ver':
-            cell.setAttribute("style", `--move-y: ${this.calc_bounded_move(event.clientY - this.y_base, bounds)}px;`);
+            cell.setAttribute("style", `--move-y: ${this.calc_bounded_move(event.clientY - this.y_base, this.bounds.actual)}px;`);
             break;
           case 'hor':
-            cell.setAttribute("style", `--move-x: ${this.calc_bounded_move(event.clientX - this.x_base, bounds)}px;`);
+            cell.setAttribute("style", `--move-x: ${this.calc_bounded_move(event.clientX - this.x_base, this.bounds.actual)}px;`);
             break;
         }
       });
